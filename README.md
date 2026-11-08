@@ -10,7 +10,7 @@ profile_web/
 ├── assets/
 │   ├── css/style.css
 │   ├── cv/arief-setiawan-cv.html
-│   ├── images/ribbon-blue.png
+│   ├── images/monogram-og.png
 │   └── js/destination-wheel.js
 └── README.md
 ```

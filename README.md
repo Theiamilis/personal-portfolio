@@ -1,20 +1,20 @@
 # My little corner
 
-Website profil dan portofolio personal berbahasa Inggris dengan gaya jirai kei minimalis bernuansa biru es, navy, hitam, dan perak.
+A personal profile and technical portfolio website with a minimalist ice-blue, navy, black, and silver aesthetic.
 
-## Buka lokal
+## Local Preview
 
-Klik dua kali `index.html` untuk membuka website di browser. Tidak perlu instal paket atau menjalankan build.
+Double-click `index.html` to open the website in your browser. No build steps or package installations are required.
 
-Untuk memakai preview HTTP, buka terminal di folder ini dan jalankan:
+To run a local HTTP preview server, open a terminal in this directory and execute:
 
 ```powershell
 python -m http.server 4173 --bind 127.0.0.1
 ```
 
-Buka `http://127.0.0.1:4173/`. Tekan Ctrl+C di terminal untuk menghentikannya.
+Then visit `http://127.0.0.1:4173/`. Press `Ctrl+C` in the terminal to stop the server.
 
-## Struktur
+## Project Structure
 
 ```text
 profile_web/
@@ -27,14 +27,10 @@ profile_web/
 └── README.md
 ```
 
-- Edit isi profil, riwayat, skills, proyek, dan kontak di `index.html`.
-- CV unduhan ada di `assets/cv/arief-setiawan-cv.html`.
-- Edit tampilan di `assets/css/style.css`.
-- Simpan gambar tambahan di `assets/images/`.
-- Layout desktop memakai identitas dan wheel orbit di kiri, dengan panel aktif di kanan. Bagian My Links menampilkan pintasan internal; klik tujuan atau gunakan tombol panah, Home, dan End untuk mengganti panel. Lima ikon berpindah satu posisi di sepanjang orbit; ikon yang melewati ujung memudar lalu muncul di ujung seberang. Penanda orbit ikut berputar, sementara logo dan label tetap tegak. Di layar kecil, layout ditumpuk vertikal. Navigasi utama menjadi fallback jika JavaScript dimatikan.
-- Konten profil diisi dari CV dan portofolio teknis Arief Setiawan. Nomor ponsel tidak ditampilkan; kontak profesional memakai email, LinkedIn, dan GitHub.
-- Latar di belakang wheel saat ini polos ice-blue; ubah `.wheel-side` di `assets/css/style.css` jika ingin mengganti warnanya. Artwork bow di kartu proyek My Links tetap memakai `assets/images/ribbon-blue.png`.
-
-Google Fonts membutuhkan internet; saat offline, browser menggunakan font cadangan. Isi, gambar, navigasi, dan detail proyek tetap tersedia.
-
-Folder ini menjadi lokasi utama untuk pengembangan lokal. Tidak ada proses publikasi otomatis.
+- Edit profile content, experience, skills, projects, and contact links in `index.html`.
+- The downloadable/printable CV template is located at `assets/cv/arief-setiawan-cv.html`.
+- Modify layout and visual styles in `assets/css/style.css`.
+- Additional images can be stored in `assets/images/`.
+- The desktop view features an identity card and curved destination wheel on the left, with the active content panel displayed on the right. Destinations can be navigated via click or arrow keys (`Left`/`Right`/`Up`/`Down`, `Home`, and `End`). On smaller screens, the layout stacks vertically. Standard navigation links provide a fallback if JavaScript is disabled.
+- Profile content covers Arief Setiawan's technical work across IT systems, network infrastructure, and hardware engineering. Contact channels are provided via Email, LinkedIn, and GitHub.
+- Google Fonts load automatically with internet access; fallback system fonts are used when offline.

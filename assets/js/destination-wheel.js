@@ -1,5 +1,6 @@
 (() => {
   const wheel = document.querySelector("#destination-wheel");
+  const wheelSide = document.querySelector(".wheel-side");
   const contentPane = document.querySelector("#content-pane");
   const viewStatus = document.querySelector("#view-status");
   const destinationCount = document.querySelector("#destination-count");
@@ -17,8 +18,9 @@
   let isRotating = false;
   let queuedWheelIndex = null;
   const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mobileQuery = window.matchMedia("(max-width: 800px)");
   const prefersReducedMotion = motionPreference.matches;
-  const spinDuration = prefersReducedMotion ? 0 : 580;
+  const spinDuration = prefersReducedMotion ? 0 : 520;
   const delay = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
   const entranceSelectors = {
     links: [".section-number", "#links-title", ".links-intro", ".featured-link-card", ".link-collection > h3", ".hub-link", ".links-note"],
@@ -163,7 +165,7 @@
     const itemOrder = new Map(items.map((item, index) => [item, index]));
     let passStarted = false;
     let passComplete = false;
-    let observationRoot = window.matchMedia("(max-width: 800px)").matches ? null : contentPane;
+    let observationRoot = mobileQuery.matches ? null : contentPane;
 
     items.forEach((item) => item.classList.add("is-pending"));
 
@@ -180,7 +182,7 @@
       queueTimer = window.setTimeout(() => {
         queueTimer = null;
         pumpQueue();
-      }, 215);
+      }, 72);
     };
 
     const startOpeningPass = () => {
@@ -188,7 +190,7 @@
       passStarted = true;
       const field = ensureHoloField();
       const fieldHeight = window.innerHeight;
-      const beamWidth = window.matchMedia("(max-width: 800px)").matches ? 42 : 58;
+      const beamWidth = mobileQuery.matches ? 42 : 58;
       addHoloBeam(field, "content-holo-beam--pass", {
         top: 0,
         left: -beamWidth,
@@ -207,8 +209,8 @@
           if (sequence !== entranceSequence) return;
           passComplete = true;
           pumpQueue();
-        }, 520);
-      }, 1560);
+        }, 135);
+      }, 160);
     };
 
     const queueVisibleItem = (item) => {
@@ -232,7 +234,7 @@
             queuedItems.delete(entry.target);
           }
         });
-      }, { root: observationRoot, threshold: 0.08, rootMargin: "0px 0px -48px 0px" });
+      }, { root: observationRoot, threshold: 0.08, rootMargin: "0px 0px -32px 0px" });
       items.forEach((item) => entranceObserver.observe(item));
       const initiallyVisible = items.filter((item) => itemIsVisible(item, observationRoot));
       if (initiallyVisible.length) {
@@ -289,7 +291,7 @@
 
     if (wrappingStop && spinDuration) {
       wrappingStop.classList.add("is-wrapping");
-      await delay(180);
+      await delay(160);
     }
 
     wheelIndex = nextWheelIndex;
@@ -297,7 +299,7 @@
     wheel.style.setProperty("--orbit-angle", `${orbitAngle}deg`);
     placeStops(wheelIndex);
 
-    if (spinDuration) await delay(spinDuration - (wrappingStop ? 180 : 0));
+    if (spinDuration) await delay(spinDuration - (wrappingStop ? 160 : 0));
     if (wrappingStop) wrappingStop.classList.remove("is-wrapping");
   };
 
@@ -326,7 +328,9 @@
     void runQueue();
   };
 
-  const selectStop = (index, moveFocus = false, updateLocation = false) => {
+  let mobileScrollTimer = null;
+
+  const selectStop = (index, moveFocus = false, updateLocation = false, scrollMobile = false) => {
     activeIndex = (index + stops.length) % stops.length;
     const selected = stops[activeIndex];
     const activeView = selected.dataset.view;
@@ -356,24 +360,45 @@
 
     if (updateLocation) requestWheelRotation(activeIndex);
     if (moveFocus) selected.focus();
+
+    if (scrollMobile && mobileQuery.matches) {
+      if (mobileScrollTimer !== null) window.clearTimeout(mobileScrollTimer);
+      mobileScrollTimer = window.setTimeout(() => {
+        mobileScrollTimer = null;
+        contentPane.scrollIntoView({
+          behavior: motionPreference.matches ? "auto" : "smooth",
+          block: "start"
+        });
+      }, 220);
+    }
   };
 
   stops.forEach((stop, index) => {
     stop.addEventListener("click", (event) => {
       event.preventDefault();
-      selectStop(index, false, true);
+      selectStop(index, false, true, true);
     });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     if (link.classList.contains("wheel-stop")) return;
 
-    const targetIndex = stops.findIndex((stop) => stop.getAttribute("href") === link.getAttribute("href"));
+    const href = link.getAttribute("href");
+    if (href === "#top") {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        contentPane.scrollTo({ top: 0, behavior: motionPreference.matches ? "auto" : "smooth" });
+        window.scrollTo({ top: 0, behavior: motionPreference.matches ? "auto" : "smooth" });
+      });
+      return;
+    }
+
+    const targetIndex = stops.findIndex((stop) => stop.getAttribute("href") === href);
     if (targetIndex < 0) return;
 
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      selectStop(targetIndex, false, true);
+      selectStop(targetIndex, false, true, true);
     });
   });
 
@@ -387,8 +412,75 @@
     else return;
 
     event.preventDefault();
-    selectStop(nextIndex, true, true);
+    selectStop(nextIndex, true, true, false);
   });
+
+  // Mouse wheel navigation over the left wheel panel on desktop
+  let lastWheelScrollTime = 0;
+  if (wheelSide) {
+    wheelSide.addEventListener("wheel", (event) => {
+      if (mobileQuery.matches) return;
+      if (Math.abs(event.deltaY) < 12) return;
+      event.preventDefault();
+      const now = performance.now();
+      if (now - lastWheelScrollTime < 380) return;
+      lastWheelScrollTime = now;
+      const direction = event.deltaY > 0 ? 1 : -1;
+      selectStop(activeIndex + direction, false, true, false);
+    }, { passive: false });
+  }
+
+  // Touch swipe support on the wheel stops
+  let touchStartY = null;
+  wheel.addEventListener("touchstart", (event) => {
+    if (event.touches.length === 1) {
+      touchStartY = event.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  wheel.addEventListener("touchend", (event) => {
+    if (touchStartY === null || !event.changedTouches.length) return;
+    const deltaY = touchStartY - event.changedTouches[0].clientY;
+    touchStartY = null;
+    if (Math.abs(deltaY) < 36) return;
+    const direction = deltaY > 0 ? 1 : -1;
+    selectStop(activeIndex + direction, false, true, false);
+  }, { passive: true });
+
+  // Copy email button in Contact section
+  const copyEmailBtn = document.querySelector("#copy-email-btn");
+  if (copyEmailBtn) {
+    let copyResetTimer = null;
+    copyEmailBtn.addEventListener("click", async () => {
+      const email = copyEmailBtn.dataset.email || "ariefs1412@gmail.com";
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(email);
+        } else {
+          const tempInput = document.createElement("textarea");
+          tempInput.value = email;
+          tempInput.setAttribute("readonly", "");
+          tempInput.style.position = "absolute";
+          tempInput.style.left = "-9999px";
+          document.body.append(tempInput);
+          tempInput.select();
+          document.execCommand("copy");
+          tempInput.remove();
+        }
+        copyEmailBtn.textContent = "Copied ✓";
+        copyEmailBtn.classList.add("is-copied");
+        viewStatus.textContent = "Email address copied to clipboard.";
+        if (copyResetTimer !== null) window.clearTimeout(copyResetTimer);
+        copyResetTimer = window.setTimeout(() => {
+          copyResetTimer = null;
+          copyEmailBtn.textContent = "Copy";
+          copyEmailBtn.classList.remove("is-copied");
+        }, 2000);
+      } catch {
+        window.location.href = `mailto:${email}`;
+      }
+    });
+  }
 
   const syncFromLocation = () => {
     const index = stops.findIndex((stop) => stop.getAttribute("href") === window.location.hash);
@@ -403,7 +495,7 @@
   orbitAngle %= 360;
   wheel.style.setProperty("--orbit-angle", `${orbitAngle}deg`);
   placeStops(wheelIndex);
-  selectStop(activeIndex);
+  selectStop(activeIndex, false, false, initialIndex >= 0);
   wheel.classList.add("is-ready");
   document.body.classList.add("wheel-enabled");
 

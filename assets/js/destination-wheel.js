@@ -27,7 +27,7 @@
     profil: [".section-marker", ".profile-details > h2", ".profile-details > .empty-copy", ".profile-facts", ".cv-row", ".skills-section > .section-heading", ".skill-card", ".achievements-section > .section-heading", ".milestone-card"],
     riwayat: [".history-section > .section-heading", ".history-column > h3", ".history-entry"],
     portofolio: [".portfolio-section > .section-heading", ".project-card"],
-    contact: [".contact-heading", ".contact-links > h3", ".contact-note", ".contact-list > div"]
+    contact: [".contact-section > .section-heading", ".contact-intro", ".contact-card"]
   };
   let entranceSequence = 0;
   let passTimer = null;
@@ -473,7 +473,7 @@
         if (copyResetTimer !== null) window.clearTimeout(copyResetTimer);
         copyResetTimer = window.setTimeout(() => {
           copyResetTimer = null;
-          copyEmailBtn.textContent = "Copy";
+          copyEmailBtn.textContent = "Copy email";
           copyEmailBtn.classList.remove("is-copied");
         }, 2000);
       } catch {

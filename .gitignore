@@ -11,5 +11,6 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 
-# Local logs
+# Local logs & audits
 *.log
+anti-slop/

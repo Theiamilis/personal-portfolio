@@ -2,18 +2,6 @@
 
 A personal profile and technical portfolio website with a minimalist ice-blue, navy, black, and silver aesthetic.
 
-## Local Preview
-
-Double-click `index.html` to open the website in your browser. No build steps or package installations are required.
-
-To run a local HTTP preview server, open a terminal in this directory and execute:
-
-```powershell
-python -m http.server 4173 --bind 127.0.0.1
-```
-
-Then visit `http://127.0.0.1:4173/`. Press `Ctrl+C` in the terminal to stop the server.
-
 ## Project Structure
 
 ```text
